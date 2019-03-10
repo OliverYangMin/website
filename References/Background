@@ -1,0 +1,44 @@
+# Aircraft Recover Problem
+航班恢复问题 is to determine for each aircraft when and which flights to operate, with the objective of minimzing the total costs of flight 
+canellation, flight delay , and aircraft swap, while satisfying constraints such as maintenance , time and space matcher, and airport capacity.
+
+> Disruptions may be caused by airline resource shortages such as aircraft mechanical failures or absence of crew members, or they could be
+due to airport capacity and air traffic control restrictions such as the quota of available airport departure and arrival slots in adverse 
+weather. When disruptions happen, the Airline Operations Center is responsible for making decisions, re-scheduling airline resources 
+including aircraft, flights and crews, and re-accommodating passengers with the objective of restoring the airline’s operation back to the 
+planned schedule with minimized cost.
+
+## Involved Objects
+- aircraft
+- flights
+- crews
+- passengers
+
+## Recover Options
+- delaying flights
+- canceling flights
+- changing(swapping) the aircraft for flights
+
+> The recovery horizon is generally one to four days.
+
+### Integrated Recovery Problem
+> Recover problem be decomposed into several stages and solve them in a sequential manner. ARP be solved first because of the value of aircaft.
+1. ARP
+2. CRP crews recover problem
+3. PRP passengers recover problem
+
+
+### 难点
+1. airport capacity constraints, 大部分以小时为单位，限制进出流量，如何去计算
+> Each airline is allocated a quota, stipulating the maximum number of departures and arrivals in may have during the flow control period
+2. planned maintenance若不能交换，那么每架飞机的航班串有部分节点是固定的
+3. 
+
+
+
+
+
+
+
+
+
