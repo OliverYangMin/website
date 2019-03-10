@@ -35,10 +35,47 @@ planned schedule with minimized cost.
 3. 
 
 
+### Recover Policies 
+- generation of new aircraft routes and crew duties 
+- crew deadheading(transportation of crew as passengers) : deadheading within a duty and deadheading back to base
+- aircraft empty fly
+- the use of reserve crew and aircraft
+- flight delays and cancellations
 
 
+# Crew Recover Problem
+Crew recovery involves the gen- eration of individual duties for each crew member, satisfying all relevant legality requirements. 
+To satisfy the more restrictive pairing and roster rules, changes to duties planned for succeeding days are permitted at the end of the day.
 
+- minimum sit time between two flights for crews
+- minimum turn time between two flights for aircraft
 
+### Recover Window
+> The recovery window is described as a time period that defines the set of disruptable flights ND ⊆N. The set ND contains all flights 
+that are primarily affected by the disruption and those that depart after the disruption occurs, but before the end of the specified time
+window.
 
+### carry-in and carry-out activities
+将aircraft和crew带入recover window的航班或起始点，固定住，成为此aircraft和crew的起始机场和起始时间，终止机场和终止时间。
 
+### flight copies technique
+involves the multiple duplication of each flight contained in N with each copy assigned a progressively later departure time.
+通过flight copy来确定delay的时间，具有离散特征，当然会造成解变差
+
+### disruptable and nondisruptable flight sets
+nondisruptable flight在包含flight copies在内的N^D中，不存在copy 只有它本身
+
+> It is important to note that the nodes representing origination and termination airports are treated as nondisruptable flights.
+作为any aircraft 的航班串起始点，是不可改变的
+
+最后这些航班组成了aircraft i 所能执行的connection network
+
+### aircraft routes and crew duties
+
+### Legality of Crew Duties
+- the origination and termination locations : crew base
+- every crew has a list of permissible overnight airport
+- the number of hours that a crew duty spans 
+- maximum number of flying hours 8 hours
+- limit on the duration of the crew duty 13 hours
 
