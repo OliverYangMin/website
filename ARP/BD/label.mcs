@@ -1,0 +1,130 @@
+function DeepCopy(tab)
+    local a = {}
+    for i,ir in pairs(tab) do
+        a[i] = ir
+    end 
+    return a
+end 
+
+function dominanted(path1, path2)
+    return path1.cost<=path2.cost and path1.time<=path2.time
+end 
+
+function Extends(path, node)
+    return path.time + graph[path[#path]][node][1]<=nodes[node][2]
+end 
+
+function Dominance(U,P)
+   for i=1,#nodes do
+        for a=1,#U do
+            if U[a] and #U[a]==i then
+                for b=1,#U do
+                    if a~=b  and U[a] and U[b] and #U[b]==i then 
+                        if dominanted(U[a], U[b]) then
+                            U[b] = false
+                        elseif dominanted(U[b], U[a]) then 
+                            U[a] = false
+                        end 
+                    end 
+                end 
+                for b=1,#P do
+                    if U[a] and P[b] and #P[b]==i then 
+                        if dominanted(U[a], P[b]) then
+                            P[b] = false
+                        elseif dominanted(P[b], U[a]) then 
+                            U[a] = false
+                        end 
+                    end 
+                end 
+            end
+        end 
+        for a=1,#P do
+            if P[a] and #P[a]==i then 
+                for b=1,#U do
+                    if P[a] and U[b] and #U[b]==i then 
+                        if dominanted(P[a], U[b]) then
+                            U[b] = false
+                        elseif dominanted(U[b], P[a]) then 
+                            P[a] = false
+                        end 
+                    end 
+                end 
+                for b=1,#P do
+                    if a~=b and P[a] and P[b] and #P[b]==i then 
+                        if dominanted(P[a], P[b]) then
+                            P[b] = false
+                        elseif dominanted(P[b], P[a]) then 
+                            P[a] = false
+                        end 
+                    end 
+                end 
+            end 
+        end 
+    end 
+    for i,ir in ipairs(U) do
+        if not ir then 
+            table.remove(U, i)
+        end 
+    end 
+    for i,ir in ipairs(P) do
+        if not ir then 
+            table.remove(P, i)
+        end 
+    end 
+end 
+
+function Filtering(PathSet)
+    local best = {cost=math.huge}
+    for i=1,#PathSet do
+        if PathSet[i][#PathSet[i]]==dest then
+            if PathSet[i].cost<best.cost then
+                best = PathSet[i]
+            end 
+        end 
+    end 
+    return best
+end 
+
+function LabelSetting()
+    local U,P = {{start,cost=0,time=0}}, {}
+    while #U>0 do
+        local path = U[1]
+        table.remove(U,1)
+        for _,node in ipairs(adj[path[#path]]) do
+            if Extends(path, node) then
+                local p = DeepCopy(path)
+                p.time = p.time + graph[p[#p]][node][1]
+                p.cost = p.cost + graph[p[#p]][node][2]
+                table.insert(p, node)
+                table.insert(U, p)
+            end 
+        end 
+        table.insert(P, path)
+        Dominance(U, P)
+    end 
+    spp = Filtering(P)
+end 
+
+function Initialize()
+    start = 3
+    dest = 5
+    --matrix
+    graph = {{0,0,0,0,{4,7}},{0,0,0,0,{2,6}},{0,0,0,0,{4,3}},{{8,3},{5,5},{12,2},0,0},{0,0,0,0,0}}
+    --adjacent links
+    adj = {}
+    for i=1,#graph do
+        adj[i] = {}
+        for j=1,#graph[i] do
+            if type(graph[i][j])=='table' then 
+                table.insert(adj[i], j)
+            end       
+        end 
+    end 
+    --nodes
+    nodes = {{6,14},{9,12},{8,12},{0,0},{9,15}}
+end 
+
+
+Initialize()
+LabelSetting(4)
+print(1)

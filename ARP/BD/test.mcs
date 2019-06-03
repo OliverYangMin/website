@@ -1,0 +1,228 @@
+package.path = package.path .. ';module/?.lua'
+require 'ReadData'
+require 'LabelExtendFunction'
+
+
+require 'mobdebug'.off()
+ReadData()
+require 'mobdebug'.on()
+
+function Disrupted(cRotation)
+    if cRotation[1].dport==57 and cRotation[1].dtime<600 and cRotation[1].dtime>=480 then
+        return true
+    elseif cRotation[1].aport==57 and cRotation[1].atime<600 and cRotation[1].atime>=480 then 
+        return true
+    end 
+    return false
+end 
+
+--function JustDelay(cRotation, atype)
+--    for f,flight in cRotation do
+--        local flytime, groundtime = 0, 0
+--        if flight.date==1 then
+--            flytime = flytime + flight.ftime
+--            groundtime = groundtime + airports[flight.aport].turn[atype]
+--        elseif flight.date==2 then 
+--            groundtime = groundtime - airports[flight.dport].turn[atype]
+--        end 
+--    end 
+--end 
+
+nodes = {}
+crafts = {}
+local rotations = {}
+local disruptedCount = 0
+for a,craft in pairs(aircrafts) do
+    if Disrupted(craft.rotation) then 
+        local str = {craft=craft.id}
+        disruptedCount = disruptedCount + 1
+        for i=1,#craft.rotation do
+            if craft.rotation[i].date==1 then 
+                table.insert(str, craft.rotation[i])
+                table.insert(nodes, craft.rotation[i])
+            end 
+        end 
+        table.insert(rotations, str)
+        craft.rotation = nil
+        table.insert(crafts, craft)
+    end 
+end 
+
+function Construction(rotation)
+    local nRotation = {}
+    local time = rotation[1].dport==57 and 600 or 600 - rotation[1].ftime 
+    for f,flight in ipairs(rotation) do
+        flight.stime = time
+        time = time + flight.ftime + airports[flight.aport].turn[aircrafts[rotation.craft].ptype]
+    end 
+    if time<=airports[rotation[#rotation].aport].ctime then
+        print('ok')
+    end
+end
+Construction(rotations[1])
+
+
+--local noodes = {}
+--for i=1,20 do
+--    table.insert(noodes, nodes[i])
+--end 
+--graph = {}
+--for i=1,#noodes do
+--    graph[i] = {}
+--    for j=1,#noodes do
+--        graph[i][j] = (noodes[i].aport==noodes[j].dport and noodes[i].dtime<=noodes[j].dtime) and 1 or 0       
+--    end
+--end 
+--local f = io.output('graph.txt')
+--for i=1,#graph do
+--    f:write(table.concat(graph[i], ' '),'\n')
+--end 
+--f:close()
+
+--graph = {}
+--for i=1,#nodes do
+--    graph[i] = {}
+--    for j=1,#nodes do
+--        graph[i][j] = (nodes[i].aport==nodes[j].dport and nodes[i].dtime<=nodes[j].dtime) and 1 or 0       
+--    end
+--end 
+
+
+
+--function Plot(cRoutes)  --input the url of your result
+--    local Nodes = CreateShapes('nodes [Points]','point') 
+--    AddField(Nodes, 'id', 'int')
+--    AddField(Nodes, 'ports', 'string')
+--    AddField(Nodes, 'times', 'string')
+    
+--    for i,node in ipairs(nodes) do
+--        local shp = AddShape(Nodes, node.x, node.y) 
+--        SetValue(shp, node.id, 'id')
+--        SetValue(shp, node.ptype, 'ptype')
+--        SetValue(shp, node.weight, 'weight')
+--    end
+--    SetParameter(Nodes, "COLORS_TYPE", 3)
+    
+--    local Routes = CreateShapes('cRoutes [Lines]','line')
+    
+--    AddField(Routes, 'id', 'int')
+--    for i, route in ipairs(cRoutes) do
+--        for j=1,#route-1 do 
+--            local shp = AddShape(Routes, nodes[route[j].id].x,nodes[route[j].id].y,nodes[route[j+1].id].x,nodes[route[j+1].id].y)
+--            SetValue(shp, i, 'id')
+--            if route[j].id~=0 then 
+--                SetValue(Nodes, i, 'route', route[j].id) 
+--            end 
+--        end
+--    end 
+--    CreateView('vrp result view', Nodes,Routes)
+--end 
+
+
+--local rotation = aircrafts[table.maxn(aircrafts)]
+--local rotation = {}
+--for n,node in ipairs(nodes) do
+--    if node.dport==testcraft.start then 
+--        rotation[1] = node
+--        rotation[1].n, rotation.time = n, node.atime+airports[node.aport].turn[testcraft.ptype]
+--        nodes[n] = false
+--        break
+--    end 
+--end 
+--local sign = true
+--while sign do
+--    sign = false
+--    for i,ir in ipairs(graph[rotation[#rotation].n]) do
+--        if ir==1 and nodes[i] and rotation.time<=nodes[i].dtime then  
+--            table.insert(rotation, nodes[i])
+--            rotation[#rotation].n = i
+--            rotation.time = nodes[i].atime + airports[nodes[i].aport].turn[testcraft.ptype]
+--            nodes[i] = false
+--            sign= true
+--            break
+--        end 
+--    end 
+--end 
+
+--function multi_label_STP(craft)
+--    for i,nodei in ipairs(nodes) do
+--        if nodei.dport==craft.start then 
+--            for j,nodej in ipairs(nodes) do
+--                if nodei.aport==nodej.dport then 
+--                    LabelExtendFunction(nodei, nodej, craft)
+--                end 
+--            end 
+--        end 
+--    end 
+--end 
+
+
+local lp = CreateLP()
+local obj = {}
+for i=1,#nodes do
+    table.insert(obj, 1800*nodes[i].importance)
+end 
+for i=1,#rotations do
+    table.insert(obj, rotations[i].cost)
+end 
+SetObjFunction(lp, obj, 'min')
+function reset()
+    coeff = {}
+    for i=1,#arcs do
+        coeff[i] = 0
+    end 
+    return coeff
+end
+
+function FlightInRotation(rotation, flight)
+    for i,ir in ipairs(rotation) do
+        if flight.id==ir.id then 
+            return true
+        end 
+    end 
+    return false
+end
+
+
+for i=1,#nodes do
+    reset()
+    coeff[i] = 1
+    for i=1,#rotations do
+        if rotations[i]:FlightInRotation(nodes[i]) then 
+            coeff[#nodes+i] = 1
+        end 
+    end 
+    AddConstraint(lp, coeff, '=', 1)
+end 
+
+
+for i=1,#crafts do
+    reset()
+    for i=1,#rotations do 
+        if rotations[i].craft==crafts[i].id then 
+            coeff[#nodes+i] = 1
+        end 
+    end 
+    AddConstraint(lp, coeff, '<=', 1)
+end 
+
+for i=1,#obj do
+    reset()
+    coeff[i] = 1
+    AddConstraint(lp, coeff, '>=', 0)
+    AddConstraint(lp, coeff, '<=', 1)
+end 
+
+
+
+
+
+
+
+
+
+
+
+
+print(table.concat(dayFlights, '-'))
+

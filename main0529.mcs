@@ -1,0 +1,33 @@
+require '02Module.GetData'  --load the data get: flights, airports, aircrafts and nodes, crafts
+require '01Class.Flight'
+require '01Class.Aircraft'
+require '02Module.stdlib'
+PORT1               = 57
+CTIME1              = 480
+OTIME1              = 600
+
+function main()
+    local starttime = os.clock()
+    require 'mobdebug'.off()
+    GetData() 
+    
+    craft = aircrafts[5]
+    --for _,craft in pairs(aircrafts) do
+        craft:buildGraph()
+    --end 
+    require 'mobdebug'.on()
+    for i=1,#craft.order do
+        for _,label in ipairs(craft.labels[craft.order[i]]) do
+            for a,adj in ipairs(craft.adj[craft.order[i]]) do
+                label:extend(adj, craft)
+            end 
+        end 
+    end 
+    
+    
+    
+    print(os.clock()-starttime)
+end 
+
+
+main()

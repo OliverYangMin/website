@@ -1,0 +1,69 @@
+function table.isin(tab, value)
+    for i=1,#tab do
+        if tab[i]==value then
+            return i
+        end 
+    end 
+    return false
+end 
+function DeepCopy(tab)
+    local new = {}
+    for i=1,#tab do
+        table.insert(new, tab[i])
+    end 
+    return new
+end 
+function indegree0(v, edges)
+    if #v==0 then 
+        return false 
+    end 
+    local tmp = DeepCopy(v)
+    for _,edge in pairs(edges) do
+        local include = table.isin(tmp, edge[2]) 
+        if include then 
+            table.remove(tmp, include)
+        end 
+    end 
+    if #tmp==0 then 
+        return -1
+    end 
+    for _,node in ipairs(tmp) do
+        for _,edge in pairs(edges) do
+            if edge[1]==node or edge[2]==node then 
+                edges[_] = nil
+            end 
+        end 
+    end 
+    for i=1,#tmp do
+        local pos = table.isin(v, tmp[i])
+        table.remove(v, pos)
+    end 
+    return tmp
+end 
+
+
+function topoSort(v, e)
+    local result = {}
+    while true do
+        local nodes = indegree0(v, e)
+        if not nodes then break end 
+        if nodes==-1 then 
+            error('there is a circle')
+            return false 
+        end 
+        for i=1,#nodes do
+            table.insert(result, nodes[i])
+        end 
+    end 
+    return result
+end 
+
+v = {1,2,3,4,5}
+e = {{1,2},{1,4},{2,3},{4,3},{4,5},{5,3}}
+
+res = topoSort(v, e)
+print(table.concat(res))
+
+
+
+

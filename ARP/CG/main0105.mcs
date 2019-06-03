@@ -1,0 +1,50 @@
+local starttime = os.clock()
+package.path = package.path .. ';module/?.lua'
+
+require 'GetData_CG'  --load the data get: flights, airports, aircrafts and nodes, crafts
+require 'Toposort'
+require 'BuildCraftGraphs'
+require 'BuildCraftRoutes'
+require 'SolveMaster'
+--require 'mobdebug'.off()
+GetData()   ---flights, airports, aircrafts
+
+build_craft_graphs() ---nodes, crafts, fSet
+print(#crafts)
+print(#aircrafts)
+print(#nodes)
+build_craft_routes()
+
+
+
+--for i=1,10 do
+--    local seq = ''
+--    for j=1,#routes[i] do
+--        seq = seq .. routes[i][j].info.ID ..'--'
+--    end 
+--    local cuts = ''
+--    for j,jr in ipairs(routes[i].cuts) do
+--        cuts = cuts .. j .. 'qiangzhi cut' .. jr .. 'mins'
+--    end 
+--    print(seq)
+--    print(cuts)
+--    print(routes[i].craft .. ' route ',i,'cost=', routes[i].cost)
+
+--end
+--local a = {}
+--for r,route in ipairs(routes) do
+--    --if route.craft==155 and #route==4 and route[1].info.ID==102390804 then
+--   -- if route.craft==125 and #route==4 and route[1].info.ID==102375451 and route[#route].info.ID==102367681 then
+--    if route.craft==145 and route[1].info.ID==102318014 then --and #route==4 then--
+--    --if route.craft==134 and #route==5 and route[1].info.ID==102379915 and route[2].info.ID==102384447 then
+--    --if route.craft==126 and #route==5 and route[1].info.ID==102331440 then ---and route[2].info.ID==102384447 then
+--        table.insert(a, route)
+--    end 
+--end 
+
+   
+SolveMaster(true)
+
+print(#nodes)
+--require 'mobdebug'.on() 
+print(os.clock()-starttime)

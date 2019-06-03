@@ -1,0 +1,222 @@
+local module_sim 	= AddModule("StartRecover","Start Recover")
+
+local prm_sim 		= AddParameter(module_sim, nil, "node", "Disruption Parameters")
+PORT1               = AddParameter(module_sim, prm_sim, "value", "First disrupted port", 57)
+CTIME1              = AddParameter(module_sim, prm_sim, "value", "First disrupted port`s close time", 240)
+OTIME1              = AddParameter(module_sim, prm_sim, "value", "First disrupted port`s open time", 240)
+PORT2               = AddParameter(module_sim, prm_sim, "value", "First disrupted port", 0)
+CTIME1              = AddParameter(module_sim, prm_sim, "value", "First disrupted port`s close time", 0)
+OTIME1              = AddParameter(module_sim, prm_sim, "value", "First disrupted port`s open time", 0)
+PORT3               = AddParameter(module_sim, prm_sim, "value", "First disrupted port", 0)
+CTIME1              = AddParameter(module_sim, prm_sim, "value", "First disrupted port`s close time", 0)
+OTIME1              = AddParameter(module_sim, prm_sim, "value", "First disrupted port`s open time", 0)
+
+
+local date_sim      = AddParameter(module_sim, nil, "node", "Date Parameters")
+YEAR                = AddParameter(module_sim, prm_sim, "value", "Year",  2018)
+MONTH               = AddParameter(module_sim, prm_sim, "value", "Month", 2)
+DAY                 = AddParameter(module_sim, prm_sim, "value", "Day", 28)
+
+function MakeInitialRoutes()
+    routes = {}
+    for c=1,#crafts do --#crafts do
+        for i,ir in ipairs(fSet[c].order) do
+            for j,jr in ipairs(fSet[c].adj[ir]) do
+               label_extend(fSet[c][ir], fSet[c][jr], crafts[c], jr)
+            end
+        end
+        
+        for i,label in ipairs(fSet[c][#fSet[c]].labels) do
+            if #label>2 then 
+                local route = {cost=label.cost, craft=crafts[c].id,cut1=label.cut1,cut2=label.cut2,cuts=label.cuts}
+                for i=2,#label-1 do 
+                    table.insert(route, fSet[c][label[i]])
+                end 
+                table.insert(routes, route)
+            end 
+        end
+   
+        for i=1,#fSet[c] do
+            fSet[c][i].labels = {}
+        end 
+        if output then  
+            print('finish', c)
+        end 
+    end 
+end 
+
+function SolveMaster(relaxed)
+    local function FlightInRoute(cRot, flight)
+        for i=1,#cRot do
+            if cRot[i].id==flight.id then 
+                return true
+            end 
+        end 
+        return false
+    end
+    
+    local function reset()
+        coeff = {}
+        for i=1,#nodes+#routes do
+            coeff[i] = 0
+        end 
+        return coeff
+    end
+    
+    local CC = {1800, 1200, 2000, 300, 30, 6, 1200/60}
+    local master = CreateLP()    
+    local obj = {}
+    for i=1,#nodes do
+        if nodes[i].dis then              --取消航班的成本  两种1 被影响的航班  2 未受影响的航班
+            table.insert(obj, (CC[1] + 4.5 * nodes[i].old.pas - CC[2] - 120 / 60 * CC[5]) * nodes[i].wt) 
+        else
+            table.insert(obj, (CC[1] + 6 * nodes[i].old.pas) * nodes[i].wt)   ---passenger cancel cost may be reduced
+        end 
+    end 
+    
+    for i=1,#routes do
+        table.insert(obj, routes[i].cost)
+    end 
+    SetObjFunction(master, obj, 'min')
+-----------------------------------------------------obj-constraints-------------------------------------------------------------------------------    
+    for i=1,#nodes do      --每个航班要么取消要么被某飞机执行
+        reset()
+        coeff[i] = 1
+        for j=1,#routes do
+            if FlightInRoute(routes[j], nodes[i]) then 
+                coeff[#nodes+j] = 1
+            end 
+        end 
+        AddConstraint(master, coeff, '=', 1)
+    end
+    
+      
+    for i=1,#crafts do        --每架飞机只能执行一个航班串
+        reset()
+        for j=1,#routes do 
+            if routes[j].craft==crafts[i].id then 
+                coeff[#nodes+j] = 1
+            end 
+        end 
+        AddConstraint(master, coeff, '<=', 1)
+    end 
+   
+    reset()      --缩短过站时间5%
+    for j=1,#routes do
+        coeff[#nodes+j] = routes[j].cut1
+    end 
+    AddConstraint(master, coeff, '<=', 23)
+    
+    reset()
+    for j=1,#routes do
+        coeff[#nodes+j] = routes[j].cut2
+    end 
+    AddConstraint(master, coeff, '<=', 23)
+    
+    reset()     --航班取消当天10%
+    for i=1,#nodes do
+        if nodes[i].date==1 then
+            coeff[i] = 1
+        end 
+    end 
+    AddConstraint(master, coeff, '<=', 46)
+    
+    reset()
+    for i=1,#nodes do
+        if nodes[i].date==2 then
+            coeff[i] = 1
+        end 
+    end 
+    AddConstraint(master, coeff, '<=', 46)
+    
+      
+    if not relaxed then
+        for i=1,#obj do
+            SetBinary(master, i)
+        end
+    end
+    
+    WriteLP(master, "CG.mps")
+    os.remove("CG_solution.sol")--clear the results
+    os.execute("cplex.exe -c \"read CG.mps\" \"opt\" \"write CG_solution.sol\" \"quit\"")
+    
+    
+    local i    = 1
+    local var  = {}
+    local dual = {}
+    inputf = io.open("CG_solution.sol")
+    for line in inputf:lines() do
+        if not objective then
+            objective = string.match(line, "objectiveValue=\"([-%d%.]+)\"")
+        end
+        if not dual[i] then
+            var[i] = string.match(line, "constraint.+dual=\"([-%d%.]+)\"")
+            if var[i] then
+                i = i + 1
+            end
+        end
+        if not var[i] then
+            var[i] = string.match(line, "variable.+value=\"([-%d%.]+)\"")
+            if var[i] then
+                i = i+1
+            end
+        end
+    end
+    if not objective then return false end 
+    local base_cost = 0
+    print('obj:',objective+base_cost)
+    inputf:close()
+    
+    
+    
+    
+    
+    Delete(master)
+    return true
+function StartRecover()
+    local starttime = os.clock()
+    package.path = package.path .. ';module/?.lua'
+
+--    require 'GetData_CG'  --load the data get: flights, airports, aircrafts and nodes, crafts
+--    require 'Toposort'
+--    require 'BuildCraftGraphs'
+--    require 'BuildCraftRoutes'
+--    require 'SolveMaster'
+    
+--    --require 'mobdebug'.off()
+--    GetData()   ---flights, airports, aircrafts
+    require 'SolveMaster'
+    require 'SolveSub'
+    MakeInitialRoutes()
+    
+    
+    
+    while true do
+        if not SolveMaster(true) then
+            break
+        end
+        if not SolveSub() then
+            break
+        end
+    end
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+--    build_craft_graphs() ---nodes, crafts, fSet
+--    build_craft_routes() ---routes  
+--    SolveMaster(true)  
+--    --require 'mobdebug'.on() 
+    
+    print(os.clock()-starttime)
+end 

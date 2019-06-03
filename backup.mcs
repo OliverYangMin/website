@@ -1,0 +1,35 @@
+local module_sim 	= AddModule("StartRecover","Start Recover")
+
+local prm_sim 		= AddParameter(module_sim, nil, "node", "Disruption Parameters")
+PORT1               = AddParameter(module_sim, prm_sim, "value", "First disrupted port", 57)
+CTIME1              = AddParameter(module_sim, prm_sim, "value", "First disrupted port`s close time", 240)
+OTIME1              = AddParameter(module_sim, prm_sim, "value", "First disrupted port`s open time", 240)
+PORT2               = AddParameter(module_sim, prm_sim, "value", "First disrupted port", 0)
+CTIME1              = AddParameter(module_sim, prm_sim, "value", "First disrupted port`s close time", 0)
+OTIME1              = AddParameter(module_sim, prm_sim, "value", "First disrupted port`s open time", 0)
+PORT3               = AddParameter(module_sim, prm_sim, "value", "First disrupted port", 0)
+CTIME1              = AddParameter(module_sim, prm_sim, "value", "First disrupted port`s close time", 0)
+OTIME1              = AddParameter(module_sim, prm_sim, "value", "First disrupted port`s open time", 0)
+YEAR                = AddParameter(module_sim, prm_sim, "value", "Year",  2018)
+MONTH               = AddParameter(module_sim, prm_sim, "value", "Month", 2)
+DAY                 = AddParameter(module_sim, prm_sim, "value", "Day", 28)
+
+function StartRecover()
+    local starttime = os.clock()
+    package.path = package.path .. ';module/?.lua'
+
+    require 'GetData_CG'  --load the data get: flights, airports, aircrafts and nodes, crafts
+    require 'Toposort'
+    require 'BuildCraftGraphs'
+    require 'BuildCraftRoutes'
+    require 'SolveMaster'
+    
+    --require 'mobdebug'.off()
+    GetData()   ---flights, airports, aircrafts
+    build_craft_graphs() ---nodes, crafts, fSet
+    build_craft_routes() ---routes  
+    SolveMaster(true)  
+    --require 'mobdebug'.on() 
+    
+    print(os.clock()-starttime)
+end 

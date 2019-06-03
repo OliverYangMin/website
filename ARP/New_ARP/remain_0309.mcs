@@ -1,0 +1,45 @@
+--flights = {
+--id, date, port1, port2, time1, time2, wt
+--info = {ID, flight}
+--old  = {craftID; atp, seats, pas}
+--ftime = tmp.time2 - tmp.time1   
+--gtime
+--s.t.: water, atp={true,true,true,true}
+--}
+
+--airports = {
+--atp  = {true,true,true,true}
+--turn = {30,30,30,30}
+--tw={otime,ctime}
+--}
+
+
+--aircrafts = {
+--id, start, water, dis
+--base = {}
+--rot={}
+--}
+
+local starttime = os.clock()
+package.path = package.path .. ';module/?.lua'
+require 'GetData'
+require 'stdlib'
+require 'BuildGraph'
+
+require 'mobdebug'.off()
+OTIME1, CTIME1 = 480, 600
+get_data()
+build_craft_graphs()
+require 'mobdebug'.on()
+
+for craft in ipairs 
+
+
+
+
+
+
+
+
+
+print('The total execute time: ', os.clock()-starttime)

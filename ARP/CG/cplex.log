@@ -1,0 +1,93 @@
+
+Log started (V12.6.0.0) Mon Jan 07 19:13:21 2019
+
+
+Selected objective sense:  MINIMIZE
+Selected objective  name:  R0
+Selected RHS        name:  RHS
+
+Problem 'CG.mps' read.
+Read time = 0.03 sec. (5.88 ticks)
+Parallel mode: deterministic, using up to 2 threads for concurrent optimization.
+Tried aggregator 1 time.
+LP Presolve eliminated 17116 rows and 2 columns.
+Reduced LP has 154 rows, 8555 columns, and 54727 nonzeros.
+Presolve time = 0.00 sec. (9.38 ticks)
+Initializing dual steep norms . . .
+
+Iteration log . . .
+Iteration:     1   Dual objective     =          4626.000000
+Iteration:   154   Dual objective     =         36621.000000
+Reinitializing dual norms . . .
+
+Dual simplex solved model.
+
+
+Dual simplex - Optimal:  Objective = 3.6785000000e+004
+Solution time =    0.06 sec.  Iterations = 222 (0)
+Deterministic time = 29.54 ticks  (468.94 ticks/sec)
+
+
+Solution written to file 'CG_solution.sol'.
+
+Log started (V12.6.0.0) Mon Jan 07 19:24:30 2019
+
+
+Selected objective sense:  MINIMIZE
+Selected objective  name:  R0
+Selected RHS        name:  RHS
+
+Problem 'CG.mps' read.
+Read time = 0.09 sec. (5.88 ticks)
+Parallel mode: deterministic, using up to 2 threads for concurrent optimization.
+Tried aggregator 1 time.
+LP Presolve eliminated 17116 rows and 2 columns.
+Reduced LP has 154 rows, 8555 columns, and 54727 nonzeros.
+Presolve time = 0.01 sec. (9.38 ticks)
+Initializing dual steep norms . . .
+
+Iteration log . . .
+Iteration:     1   Dual objective     =          4626.000000
+Iteration:   154   Dual objective     =         36621.000000
+Reinitializing dual norms . . .
+
+Dual simplex solved model.
+
+
+Dual simplex - Optimal:  Objective = 3.6785000000e+004
+Solution time =    0.05 sec.  Iterations = 222 (0)
+Deterministic time = 29.54 ticks  (628.58 ticks/sec)
+
+
+Solution written to file 'CG_solution.sol'.
+
+Log started (V12.6.0.0) Mon Jan 07 19:41:24 2019
+
+
+Selected objective sense:  MINIMIZE
+Selected objective  name:  R0
+Selected RHS        name:  RHS
+
+Problem 'CG.mps' read.
+Read time = 0.09 sec. (5.89 ticks)
+Parallel mode: deterministic, using up to 2 threads for concurrent optimization.
+Tried aggregator 1 time.
+LP Presolve eliminated 17138 rows and 2 columns.
+Reduced LP has 154 rows, 8566 columns, and 54789 nonzeros.
+Presolve time = 0.05 sec. (9.39 ticks)
+Initializing dual steep norms . . .
+
+Iteration log . . .
+Iteration:     1   Dual objective     =          4626.000000
+Iteration:   149   Dual objective     =         36669.000000
+Reinitializing dual norms . . .
+
+Dual simplex solved model.
+
+
+Dual simplex - Optimal:  Objective = 3.6785000000e+004
+Solution time =    0.14 sec.  Iterations = 184 (0)
+Deterministic time = 28.66 ticks  (204.68 ticks/sec)
+
+
+Solution written to file 'CG_solution.sol'.

@@ -1,0 +1,85 @@
+local module_sim 	= AddModule("StartRecover","Start Recover")
+
+local prm_sim 		= AddParameter(module_sim, nil, "node", "Disruption Parameters")
+PORT1               = AddParameter(module_sim, prm_sim, "value", "First disrupted port", 57)
+CTIME1              = AddParameter(module_sim, prm_sim, "value", "First disrupted port`s close time", 480)
+OTIME1              = AddParameter(module_sim, prm_sim, "value", "First disrupted port`s open time", 600)
+PORT2               = AddParameter(module_sim, prm_sim, "value", "Second disrupted port", 0)
+CTIME2              = AddParameter(module_sim, prm_sim, "value", "Second disrupted port`s close time", 0)
+OTIME2              = AddParameter(module_sim, prm_sim, "value", "Second disrupted port`s open time", 0)
+PORT3               = AddParameter(module_sim, prm_sim, "value", "Third disrupted port", 0)
+CTIME3              = AddParameter(module_sim, prm_sim, "value", "Third disrupted port`s close time", 0)
+OTIME3              = AddParameter(module_sim, prm_sim, "value", "Third disrupted port`s open time", 0)
+
+
+local date_sim      = AddParameter(module_sim, nil, "node", "Date Parameters")
+YEAR                = AddParameter(module_sim, prm_sim, "value", "Year",  2018)
+MONTH               = AddParameter(module_sim, prm_sim, "value", "Month", 2)
+DAY                 = AddParameter(module_sim, prm_sim, "value", "Day", 28)
+
+
+function StartRecover()
+    local starttime = os.clock()
+    package.path = package.path .. ';module/?.lua'
+    
+    P = {} --cost weight
+    P[1] = 1800 --flight cancel cost
+    P[2] = 1200 --flight delay cost
+    P[3] = 2000 --aircraft base changed cost
+    P[4] = 300  --flight aircraft type changed cost
+    type_type_matrix = {{0,1,2,3},{1,0,1.5,2.5},{2,1.5,0,2},{3,2.5,2,0}}
+    P[5] = 30/60   --total delay time cost  --minutes
+    P[6] = 6 --passenger cancel cost
+    P[7] = {1,1.5,2,3,5} --passenger delay cost
+    P[8] = {1/60/60, 1/48/60, 1/36/60, 1/24/60, 1/12/60} --passenger change cost
+    P[9] = 1200 --turnaround time change cost
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    require 'stdlib'
+    require 'GetData'   ---return flights, airports and aircrafts
+--    require 'BuildCraftNetworks'
+--    require 'mobdebug'.off()
+    GetData()
+--    build_craft_networks()
+--    require 'mobdebug'.on() 
+
+    routes = {}
+    
+    
+    
+    
+    
+    
+    print('The run time of CPU: ', os.clock() - starttime)
+end 
+
+
+
+
+function SolveMaster()
+    
+
+
+
+
+
+end 

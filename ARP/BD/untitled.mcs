@@ -1,0 +1,41 @@
+function Evaluation(cResult)
+    --first, we think the flight schedule
+    local totalCost = 0
+    local delaycost = 0
+    local delayflights = 0
+    for f,flight in ipairs(flights) do
+        if flight.craft>=0 then
+            if flight.craft==flight.origin then
+                if flight.ttime==flight.dtime then 
+                    
+                elseif flight.ttime>=flight.dtime
+                    delayflights = delayflights + flight.importance 
+                    delaycost = delaycost + (flight.ttime - flight.dtime) * 
+                else 
+                    print('flight',f,'`s time early')
+                    return false
+                end 
+            else
+            
+            end 
+        end 
+    end 
+    
+    
+    
+    --second, we think about the passenger whose flight be canceled
+
+end 
+
+
+function PassengerDelay(cTime)
+    local time = {1,2,4,12,24}
+    local index = {1,1.5,2,3,5}
+    for i=1,#time do
+        if cTime<=time[i]*60 then 
+            return index[i]
+        end 
+    end 
+    print('This passenger should be canceled for delay more than 24 hours')
+    return false
+end 

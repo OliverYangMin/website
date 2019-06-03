@@ -1,0 +1,40 @@
+function reset()
+    coeff = {}
+    for i=1,#arcs do
+        coeff[i] = 0
+    end 
+    return coeff
+end 
+
+
+flights = {}
+crafts = {}
+
+local lp = CreateLP()
+local obj = {}
+for i=1,#flights do
+    table.insert(obj, 1800 * flights[i].importance + flights[i].passenger * 6 * flights[i].importance) 
+end 
+
+function FlyCost(cRoute, craft)
+    return cost
+end 
+
+for i=1,#crafts do
+    for j=1,#routes do
+        table.insert(obj, FlyCost(routes[j], crafts[i])
+    end 
+end 
+SetObjFunction(lp, obj, 'min')
+
+reset()
+for i=1,#flights do
+    coeff[i] = 1 
+end 
+AddConstraint(lp, coeff, '<=', 49)
+
+reset()
+for i=#flights+1, #obj do
+    coeff[i] = rotations[i-#flights].cut
+end 
+AddConstraint(lp, coeff, '<=', 25)
