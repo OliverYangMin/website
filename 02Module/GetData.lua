@@ -45,9 +45,8 @@ local function GetFlights()
     ---the flight is or not water line
     Inf = Csv2Matrix(file2, 1)
     for f,flight in ipairs(flights) do
-        --flight.water = false
         for i=1,#Inf do
-            if flight.port1==Inf[i][1] and flight.port2==Inf[i][2] then 
+            if flight.port1 == Inf[i][1] and flight.port2 == Inf[i][2] then 
                 flight.water = true 
                 break
             end
@@ -56,9 +55,8 @@ local function GetFlights()
     ---the flight`s craft type limitation
     Inf = Csv2Matrix(file3, 1)
     for f,flight in ipairs(flights) do
-        --flight.atp = {true, true, true, true}
         for i=1,#Inf do
-            if flight.port1==Inf[i][1] and flight.port2==Inf[i][2] then 
+            if flight.port1 == Inf[i][1] and flight.port2 == Inf[i][2] then 
                 for j=1,4 do
                     flight.atp[j] = Inf[i][2+j]==1
                 end 
@@ -152,7 +150,7 @@ local function GetAircrafts()
         for i=1,4-#craft.base do
             table.insert(craft.base, craft.rot[#craft.rot].port2)
         end 
-        
+        --这里提前把飞机的base计算出来，导入即可
         ---the initial turnaround time for every flight
         for i=1,#craft.rot-1 do
           craft.rot[i].gtime = craft.rot[i+1].time1 - craft.rot[i].time2
@@ -209,11 +207,10 @@ function GetData()
     GetAircrafts()
     
     for i=#flights,1,-1 do
-        if flights[i].date>1 then
+        if flights[i].date > 1 then
             table.remove(flights, i)
         end 
     end 
-    
     
     dayFlights = {0,0,0,0}
     for i=1,#flights do

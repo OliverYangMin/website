@@ -1,17 +1,9 @@
 Label = {}
 Label.__index = Label
 
-function Label:new()
-     Label:new(){port2 = self.start,   time1 = self.time1, time2 = self.time1, gtime = 0, id = 0,date = 1, dual = 0} --起点
-    flights[-1] = {port1 = self.base[1], time1 = math.huge,  id=#map+1, date=2, dual=0}   
-    local self = {port1 = port1, port2 = port2, time1 = time1, time2 = time2, gtime = gtime, date = date,}
-    self[0] = 0
-    for i=1,#seq do self[i] = seq[i] end 
+function Label:new(tab)
+    local self = tab or {0; cost = 0, delay = 0, cut = 0, cuts = {}}
     setmetatable(self, Label)
-    if sign then
-        self.sign, self.active = {}, true
-        for i=1,#nodes do self.sign[i] = 0 end 
-    end 
     return self
 end 
 
@@ -19,27 +11,16 @@ function Label:newDelay(flight1, flight2, gtime)
     return math.max(0, flight1.time2 + self.delay + gtime - flight2.time1)
 end
 
-function time_check_airport(port, time)
-    if port.tw then 
-        if port.tw[2]>1440 then 
-            return not (time%1440<port.tw[1] and time%1440>port.tw[2]%1440)
-        else
-            return time%1440<port.tw[1] or time%1440>port.tw[2] 
+function Label:dominate(label)
+    if #self == #label then 
+        for i=2,#self-1 do
+            if self[i] ~= label[i] then 
+                return false
+            end 
         end 
-    end
-    return true
-end
-
-function check_airport(flight, delay)
-    if not time_check_airport(airports[flight.port1], flight.time1 + delay) then 
-        return false
-    end
-    if not time_check_airport(airports[flight.port2], flight.time2 + delay) then
-        return false
+        return self.cost <= label.cost  and self.cut <= label.cut 
     end 
-    return true
 end 
-
 
 function Label:extend(id, craft)
     local flight1, flight2 = flights[self.id], flights[id]
@@ -101,12 +82,11 @@ function Label:extend(id, craft)
         end 
     else
         local tag = Label:new({unpack(self)}, self.cost, self.delay, label.cut, DeepCopy(label.cuts))
-            if tag.delay + flight1.time2 + flight1.gtime > craft.day2 then
-                tag.cut = tag.cut + 1
-                local cut2 = math.max(0, flight1.time2+tag.delay+airports[flight1.port2].turn[craft.atp]-craft.day2)
-                tag.cost = tag.cost + cut2 * 20 
-                table.insert(tag.cuts, cut2)
-            end 
+        if tag.delay + flight1.time2 + flight1.gtime > craft.day2 then
+            tag.cut = tag.cut + 1
+            local cut2 = math.max(0, flight1.time2+tag.delay+airports[flight1.port2].turn[craft.atp]-craft.day2)
+            tag.cost = tag.cost + cut2 * 20 
+            table.insert(tag.cuts, cut2)
         end 
         table.insert(tag, id)
         table.insert(craft.labels[id], tag)
@@ -114,9 +94,9 @@ function Label:extend(id, craft)
 end 
 
 function Label:to_route()
-    local route = {cost = self.cost, craft = self.craft, cut = self.cut, cuts = self.cuts}
+    local route = Route:new(self.cost, self.craft, self.cut, self.cuts)
     for i=2,#label-1 do 
-        table.insert(route, self[i])
+        route[#route+1] = self[i]
     end
     return route
 end 

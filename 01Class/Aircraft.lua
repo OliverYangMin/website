@@ -3,7 +3,6 @@ Aircraft.__index = Aircraft
 
 function Aircraft:new(id, rot, atp, seats)
     local self = {id = id, rot = rot, atp = atp, seats = seats, water = true, base = {}}
-    -- .start .base .
     setmetatable(self, Aircraft)
     return self
 end 
@@ -62,7 +61,8 @@ function Aircraft:filterGraph()   --筛选航班
         ::continue::
     end 
     map[0], map[#map+1] = 0, -1 
-    flights[0]  = Label:new(){port2 = self.start,   time1 = self.time1, time2 = self.time1, gtime = 0, id = 0,date = 1, dual = 0} --起点
+    flights[0]  = {port2 = self.start,   time1 = self.time1, time2 = self.time1, gtime = 0, id = 0,date = 1, dual = 0} 
+    --起点
     flights[-1] = {port1 = self.base[1], time1 = math.huge,  id=#map+1, date=1, dual=0}                  --终点
     return map
 end 
@@ -75,7 +75,7 @@ function Aircraft:buildGraph()
     for j=1,#self.fSet-1 do
         if flights[self.fSet[0]].port2 == flights[self.fSet[j]].port1 and flights[self.fSet[0]].time1 <= flights[self.fSet[j]].time1 then
             table.insert(self.edges, {0,j})
-            table.insert(self.adj[0], j)
+            table.insert(self.adj[0], self.fSet[j])
         end 
     end 
     
@@ -85,14 +85,15 @@ function Aircraft:buildGraph()
                 local min_gtime = math.ceil(airports[flights[self.fSet[i]].port2].turn[self.atp] * 2 / 3)
                 if flights[self.fSet[i]].port2 == flights[self.fSet[j]].port1 and flights[self.fSet[i]].time1 + min_gtime <= flights[self.fSet[j]].time1 then
                     table.insert(self.edges, {i,j})
-                    table.insert(self.adj[i], j)
+                    table.insert(self.adj[i], self.fSet[j])
                 end 
             end 
         end 
     end 
     self:topoSort()
-    
-    self.labels = {}
-    for i=1,#self.fSet do self.labels[i] = {} end 
-    self.labels[0] = {{0; cost=0, delay=0, cut=0, cuts={}}}
+
+    for i=1,#self.fSet do 
+        flights[self.fSet[i]].labels = {} 
+    end 
+    flights[0].labels = {Label:new()}
 end 

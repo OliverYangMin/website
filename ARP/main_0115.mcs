@@ -33,27 +33,6 @@ function StartRecover()
     P[7] = {1,1.5,2,3,5} --passenger delay cost
     P[8] = {1/60/60, 1/48/60, 1/36/60, 1/24/60, 1/12/60} --passenger change cost
     P[9] = 1200 --turnaround time change cost
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
     require 'stdlib'
     require 'GetData'   ---return flights, airports and aircrafts
 --    require 'BuildCraftNetworks'
@@ -61,25 +40,8 @@ function StartRecover()
     GetData()
 --    build_craft_networks()
 --    require 'mobdebug'.on() 
-
     routes = {}
-    
-    
-    
-    
-    
-    
     print('The run time of CPU: ', os.clock() - starttime)
 end 
 
 
-
-
-function SolveMaster()
-    
-
-
-
-
-
-end 

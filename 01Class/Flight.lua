@@ -7,21 +7,6 @@ function Flight:new(id, cInf)
     self.old  = {cInf[8]; atp = cInf[9], seats = cInf[11], pas = cInf[10]}
     self.ftime = self.time2 - self.time1
     self.date  = self.date - 43158   
-    -- .water, .atp = {true, true, true, true}
     setmetatable(self, Flight)
     return self
 end 
-
-
-
-Airport = {}
-Airport.__index = Airport
-
-function Airport:new()
-    local self = {atp = {true,true,true,true}, turn = {}}
-    setmetatable(self, Airport)
-    return self
-end 
-
-
-
