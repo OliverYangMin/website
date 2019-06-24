@@ -1,0 +1,13 @@
+（1）读取数据
+	flights
+	airports
+	aircrafts
+	others
+（2）为每架飞机构建航班拓扑顺序图
+
+（3）构建初始解
+（4）求解主问题
+（5）得到duals
+（6）求解子问题，寻找negative routes
+（7）加入routes_pool, goto (4),直到找不到negative_route
+（8）检验结果，输出结果，航班串，取消航班，交换航班等等

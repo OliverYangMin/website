@@ -27,10 +27,11 @@ function Label:extend(id, craft)
     if id > 0 then 
         for t=1,3 do 
             local tag = {cut = self.cut, cuts = DeepCopy(self.cuts)}  --cost=label.cost}--,  --cut=label.cut, cuts=DeepCopy(label.cuts), delay=label.delay,}
-            local cut2 = 0
+            local cut2
             if t == 1 then 
                 tag.delay = self:newDelay(flight1, flight2, flight1.gtime)
             elseif self.delay + flight1.time2 + flight1.gtime > flight2.time1 then
+                cut2 = 0
                 if t==2 then
                     if flight1.gtime > airports[flight1.port2].turn[craft.atp] then  
                         tag.delay = self:newDelay(flight1, flight2, airports[flight1.port2].turn[craft.atp])
@@ -51,14 +52,16 @@ function Label:extend(id, craft)
                 break
             end 
             
-            if tag.delay>1440 then break end
+            if tag.delay > 1440 then break end
             
             --if flight2.time2 + tag.delay + math.ceil(airports[flight2.port2].turn[craft.atp]*2/3) > craft.day2 then break end
             ----机场关闭约束
             if not check_airport(flight2, tag.delay) then break end 
             --add the delay cost and aircraft change cost
-            tag.cost = label.cost + flight_delay_cost(flight2, tag.delay) + craft_swap_cost(flight2, craft) + cut2 * 20   --- -flight2.dual    
-            
+            tag.cost = label.cost + flight_delay_cost(flight2, tag.delay) + craft_swap_cost(flight2, craft) - flight2.dual    
+            if cut2 then
+                tag.cost = tag.cost + cut2 * 20 - cut_price
+            end 
             
             local dominated 
             local i = 1

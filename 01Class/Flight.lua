@@ -7,6 +7,7 @@ function Flight:new(id, cInf)
     self.old  = {cInf[8]; atp = cInf[9], seats = cInf[11], pas = cInf[10]}
     self.ftime = self.time2 - self.time1
     self.date  = self.date - 43158   
+    self.labels = {}
     setmetatable(self, Flight)
     return self
 end 

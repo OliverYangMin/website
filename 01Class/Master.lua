@@ -17,7 +17,7 @@ function Master:new(cRoutes)
     return self
 end 
 
-function Master:buildModel(relaxed)
+function Master:buildModel()
     ---the cost of flights being canceled
     for i=1,#flights do
         if flights[i].dis then
@@ -44,22 +44,7 @@ function Master:buildModel(relaxed)
         end 
         AddConstraint(master, coeff, '=', 1)
     end
-   
-    --for i=1,4 do                 ---if the flight in day 1,2,3,4
-        local coeff = resetCoeff(#self.obj)
-        for j=1,#routes do
-            coeff[#flights + j] = routes[j].cut
-        end 
-        AddConstraint(master, coeff, '<=', math.floor(0.05 * dayFlights[i]))
-        
---        coeff = resetCoeff(#self.obj)
---        for j=1,#flights do
---            coeff[j] = 1
---        end 
---        AddConstraint(master, coeff, '<=', math.floor(0.1 * dayFlights[i]))
-    --end 
     
-    ---every aircraft only execute no more than one route
     for i=1,#aircrafts do
         coeff = resetCoeff(#self.obj)
         for j=1,#routes do 
@@ -69,8 +54,27 @@ function Master:buildModel(relaxed)
         end 
         AddConstraint(master, coeff, '<=', 1)
     end 
-      
-    if not relaxed then
+    
+    --for i=1,4 do                 ---if the flight in day 1,2,3,4
+    local coeff = resetCoeff(#self.obj)
+    for j=1,#routes do
+        coeff[#flights + j] = routes[j].cut
+    end 
+    AddConstraint(master, coeff, '<=', math.floor(0.05 * dayFlights[i]))
+        
+--        coeff = resetCoeff(#self.obj)
+--        for j=1,#flights do
+--            coeff[j] = 1
+--        end 
+--        AddConstraint(master, coeff, '<=', math.floor(0.1 * dayFlights[i]))
+    --end 
+    
+    ---every aircraft only execute no more than one route
+
+end 
+
+function Master:solve(isInteger)
+    if isInteger then
         for i=1,#obj do
             SetBinary(master, i)
         end
@@ -81,9 +85,6 @@ function Master:buildModel(relaxed)
             AddConstraint(master, coeff, '<=', 1)
         end 
     end
-end 
-
-function Master:solve()
     WriteLP(master, "master.mps")
     os.remove("master_solution.sol")--clear the results
     os.execute("cplex.exe -c \"read master.mps\" \"opt\" \"write master_solution.sol\" \"quit\"")
@@ -91,45 +92,55 @@ end
 
 function Master:getResult()
     local i,j = 1,1
-    local var = {}
+    local self.var = {}
     inputf = io.open("master_solution.sol")
-    obj = nil
-    dual = {}
+    self.obj = nil
+    self.duals = {}
     for line in inputf:lines() do
         if not obj then
             obj = string.match(line, "objectiveValue=\"([-%d%.]+)\"")
         end
-        if not dual[i] then
-            dual[i] = string.match(line, "constraint.+dual=\"([-%d%.]+)\"")
-            if dual[i] then
-                dual[i] = tonumber(dual[i])
+        if not self.duals[i] then
+            self.duals[i] = string.match(line, "constraint.+dual=\"([-%d%.]+)\"")
+            if self.duals[i] then
+                self.duals[i] = tonumber(self.duals[i])
                 i = i + 1
             end
         end 
-        if not var[j] then
-            var[j] = string.match(line, "variable.+value=\"([-%d%.]+)\"")
-            if var[j] then
+        if not self.var[j] then
+            self.var[j] = string.match(line, "variable.+value=\"([-%d%.]+)\"")
+            if self.var[j] then
                 j = j+1
             end
         end
     end
-    local base_cost = 54567
-    print('obj:',obj + base_cost)             ---@@@@@@@@@@@@@@@@@@@
+    --local base_cost = 54567
+    --print('obj:',obj + base_cost)             ---@@@@@@@@@@@@@@@@@@@
     inputf:close()
     
-    for i=1,#nodes do
-        if var[i]=='1' then 
-            print('flight',nodes[i].info.ID, 'be canceled cost',(1800 + 6 * nodes[i].old.pas) * nodes[i].wt)
-        end     
+--    for i=1,#nodes do
+--        if var[i]=='1' then 
+--            print('flight',nodes[i].info.ID, 'be canceled cost',(1800 + 6 * nodes[i].old.pas) * nodes[i].wt)
+--        end     
+--    end 
+    --return true
+end 
+
+function Master:setDuals()
+    for f,flight in ipairs(flights) do
+        flight.dual = self.duals[f]
     end 
-    return true
+    for c,craft in pairs(aircrafts) do
+        craft.dual = self.duals[#flights+c]
+    end 
+    cut_price = self.duals[#self.duals]
 end 
 
 function Master:solveSubproblem()
     local routes = {}
-    for c,craft in ipairs(aircrafts) do
-        local route = craft:buildRoutes()
-        if route.cost < -0.001 then 
+    for c,craft in pairs(aircrafts) do
+        local route = craft:findRoute()
+        if route.cost < -0.1 then 
             routes[#routes+1] = route
         end
     end 

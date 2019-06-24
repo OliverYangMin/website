@@ -61,7 +61,7 @@ function Aircraft:filterGraph()   --筛选航班
         ::continue::
     end 
     map[0], map[#map+1] = 0, -1 
-    flights[0]  = {port2 = self.start,   time1 = self.time1, time2 = self.time1, gtime = 0, id = 0,date = 1, dual = 0} 
+    flights[0]  = {port2 = self.start,   time1 = self.time1, time2 = self.time1, gtime = 0, id = 0, date = 1, dual = 0} 
     --起点
     flights[-1] = {port1 = self.base[1], time1 = math.huge,  id=#map+1, date=1, dual=0}                  --终点
     return map
@@ -91,9 +91,25 @@ function Aircraft:buildGraph()
         end 
     end 
     self:topoSort()
+end 
 
-    for i=1,#self.fSet do 
-        flights[self.fSet[i]].labels = {} 
+function Aircraft:findRoute()
+    flights[0]  = {labels = {Label:new()}, port2 = self.start,   time1 = self.time1, time2 = self.time1, gtime = 0, id = 0, date = 1, dual = 0} 
+    flight[0].labels[1].cost = - self.dual
+    --起点
+    flights[-1] = {labels = {}, port1 = self.base[1], time1 = math.huge,  id=#map+1, date=1, dual=0}                  --终点
+    for i=1,#self.order do
+        for _,label in ipairs(flights[self.fSet[self.order[i]]].labels) do
+            for a,adj in ipairs(self.adj[self.order[i]]) do
+                label:extend(adj, self)
+            end 
+        end 
     end 
-    flights[0].labels = {Label:new()}
+    local min_route = {cost = -0.1}
+    for l,label in ipairs(flights[-1].labels) do
+        if label.cost < min_route.cost then
+            min_route = label:to_route()
+        end 
+    end 
+    return min_route
 end 
